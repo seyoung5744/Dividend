@@ -1,4 +1,4 @@
-package zerobase.dividend.controller;
+package zerobase.dividend.web;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

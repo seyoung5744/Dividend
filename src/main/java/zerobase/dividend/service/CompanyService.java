@@ -94,4 +94,23 @@ public class CompanyService {
     public void deleteAutoCompleteKeyword(String keyword) {
         this.trie.remove(keyword);
     }
+
+    /**
+     * ticket에 해당하는 회사 삭제 후 회사명 반환
+     */
+    public String deleteCompany(String ticker) {
+        CompanyEntity company = this.companyRepository.findByTicker(ticker)
+            .orElseThrow(() -> new RuntimeException("존재하지 않는 회사입니다."));
+
+        // ticker에 해당하는 배당금 정보 삭제
+        this.dividendRepository.deleteAllByCompanyId(company.getId());
+
+        // 회사 삭제
+        this.companyRepository.delete(company);
+
+        // 자동 완성을 위한 trie의 회사명 삭제
+        this.deleteAutoCompleteKeyword(company.getName());
+
+        return company.getName();
+    }
 }

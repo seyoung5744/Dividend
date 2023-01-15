@@ -1,5 +1,6 @@
 package zerobase.dividend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class MemberEntity implements UserDetails {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)

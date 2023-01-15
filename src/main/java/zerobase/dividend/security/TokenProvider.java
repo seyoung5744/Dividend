@@ -8,8 +8,12 @@ import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import zerobase.dividend.service.MemberService;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +25,8 @@ public class TokenProvider {
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
+
+    private final MemberService memberService;
 
     /**
      * 토큰 생성(발급)
@@ -42,8 +48,18 @@ public class TokenProvider {
             .setClaims(claims)
             .setIssuedAt(now) // 토큰 생성 시간
             .setExpiration(expiredDate) // 토큰 만료 시간
-            .signWith(SignatureAlgorithm.ES512, this.secretKey) // 사용할 암호화 알고리즘, 비밀키
+            .signWith(SignatureAlgorithm.HS512, this.secretKey) // 사용할 암호화 알고리즘, 비밀키
             .compact();
+    }
+
+    // jwt토큰으로부터 인증 정보 가져오기
+    public Authentication getAuthentication(String jwt) {
+        // memberservice의 loadUserByUsername로부터 회원 가입 정보 가져오기
+        UserDetails userDetails = this.memberService.loadUserByUsername(this.getUsername(jwt));
+
+        // Spring에서 지원해주는 형태의 토큰으로 바꿔주기
+        // userDetails와 권한 정보 넣어주기
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     // parsing한 정보로 유저 이름 가져옴.
